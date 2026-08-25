@@ -39,7 +39,7 @@ The exe is only the **front-end**. The actual CAD capability lives in two compan
 ### Requirements
 
 - Windows 10/11 x64
-- ZWCAD 2027 HVAC edition (ZWHVAC 2027)
+- ZWAMEP2027、ZWAMEP2027 365
 - Any MCP client supporting stdio transport
 - Python is **not** required (already bundled in the exe)
 
