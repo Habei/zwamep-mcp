@@ -3,7 +3,7 @@
 
 > Bridge AI agents to ZWAMEP 1.4 (architecture & HVAC) — 110 drafting tools over stdio MCP.
 
-[![Platform](https://img.shields.io/badge/Windows-10%2F11%20x64-0078d4)](#系统要求) [![CAD](https://img.shields.io/badge/ZWCAD-2027%20HVAC-orange)](#系统要求) [![MCP](https://img.shields.io/badge/MCP-stdio-blueviolet)](#架构) [![Tools](https://img.shields.io/badge/Tools-110-success)](#工具一览)
+[![Platform](https://img.shields.io/badge/Windows-10%2F11%20x64-0078d4)](#系统要求) [![CAD](https://img.shields.io/badge/ZWAMEP 1.4%20HVAC-orange)](#系统要求) [![MCP](https://img.shields.io/badge/MCP-stdio-blueviolet)](#架构) [![Tools](https://img.shields.io/badge/Tools-110-success)](#工具一览)
 
 [English](#english) · [中文](#中文)
 
@@ -11,7 +11,7 @@
 
 ## English
 
-**ZwAmepMcpServer** is a single-file MCP server (PyInstaller distribution) that connects AI clients (Claude Desktop, Claude Code, Cursor, etc.) to **ZWAMEP 2027 Forever** for architectural & mechanical-electrical-plumbing (AMEP) drafting.
+**ZwAmepMcpServer** is a single-file MCP server (PyInstaller distribution) that connects AI clients (Claude Desktop, Claude Code, Cursor, etc.) to **ZWAMEP 1.4** for architectural & mechanical-electrical-plumbing (AMEP) drafting.
 
 It exposes **110 tools** through the Model Context Protocol:
 
@@ -24,7 +24,7 @@ It exposes **110 tools** through the Model Context Protocol:
 
 ```
 ┌──────────────┐   stdio (MCP)   ┌────────────────────┐  named pipe  ┌────────────────────┐
-│  AI client   │ ──────────────► │  ZwAmepMcpServer   │ ───────────► │  ZWAMEP 2027  │
+│  AI client   │ ──────────────► │  ZwAmepMcpServer   │ ───────────► │  ZWAMEP 1.4  │
 │  (Claude…)   │ ◄────────────── │       (exe)        │ ◄─────────── │  + 2 ZRX plugins  │
 └──────────────┘   JSON-RPC      └────────────────────┘  amep_*       └────────────────────┘
                                                                               +
@@ -116,7 +116,7 @@ Read at startup; falls back to built-in defaults if missing.
 
 ## 中文
 
-**ZwAmepMcpServer** 是一款单文件 MCP 服务（PyInstaller 打包），把 AI 客户端（Claude Desktop / Claude Code / Cursor 等）连接到 **ZWAMEP 2027永久版、ZWAMEP 2027 365版本**，用于建筑、水暖电（AMEP）专业出图。
+**ZwAmepMcpServer** 是一款单文件 MCP 服务（PyInstaller 打包），把 AI 客户端（Claude Desktop / Claude Code / Cursor 等）连接到 **ZWAMEP 1.4、ZWAMEP 2.0.2 365版本**，用于建筑、水暖电（AMEP）专业出图。
 
 通过 Model Context Protocol 暴露 **110 个工具**：
 
@@ -129,7 +129,7 @@ Read at startup; falls back to built-in defaults if missing.
 
 ```
 ┌──────────────┐   stdio (MCP)   ┌────────────────────┐  命名管道    ┌────────────────────┐
-│  AI 客户端    │ ──────────────► │  ZwAmepMcpServer   │ ───────────► │  ZWAMEP   │
+│  AI 客户端    │ ──────────────► │  ZwAmepMcpServer   │ ───────────► │  ZWAMEP 1.4   │
 │  (Claude…)   │ ◄────────────── │     （exe）        │ ◄─────────── │  + 2 个 ZRX 插件   │
 └──────────────┘   JSON-RPC      └────────────────────┘  amep_*      └────────────────────┘
                                                                               +
