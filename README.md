@@ -116,7 +116,7 @@ Read at startup; falls back to built-in defaults if missing.
 
 ## 中文
 
-**ZwAmepMcpServer** 是一款单文件 MCP 服务（PyInstaller 打包），把 AI 客户端（Claude Desktop / Claude Code / Cursor 等）连接到 **ZWAMEP 2027永久版**，用于建筑、水暖电（AMEP）专业出图。
+**ZwAmepMcpServer** 是一款单文件 MCP 服务（PyInstaller 打包），把 AI 客户端（Claude Desktop / Claude Code / Cursor 等）连接到 **ZWAMEP 2027永久版、ZWAMEP 2027 365版本**，用于建筑、水暖电（AMEP）专业出图。
 
 通过 Model Context Protocol 暴露 **110 个工具**：
 
@@ -144,7 +144,7 @@ exe 只是个**前端**。真正的画图能力在 ZWCAD 进程内的两个 ZRX 
 ### 系统要求
 
 - Windows 10/11 x64
-- ZWCAD 2027 暖通版（ZWHVAC 2027）
+- ZWAMEP 2027 永久版、ZWAMEP 2027 365版本
 - 任意支持 stdio 传输的 MCP 客户端
 - **无需** Python（已打包进 exe）
 
@@ -208,8 +208,8 @@ exe 启动时读取；缺省走内置默认。
 | `com_*` 工具报「该 ProgID 由 ZAecAMEPServerCom.zrx 加载」 | ZWCAD 未加载 `ZAecAMEPServerCom.zrx`。 |
 | `com_*` 可用但 `amep_*` 报 `loadModule` 失败 | `ZAecArchService.zrx` / `ZAecHvacService.zrx` 及其依赖 dll 不在搜索路径；整目录拷贝。 |
 | 管道工具调了但图纸无变化 | 确认 ZWCAD 有打开的图纸；部分工具需先有宿主实体（如门窗需先有墙）。 |
-| `APPLOAD` 报缺 dll | 依赖 dll 未随包分发；从开发机 `Out\VC15\Alpha_HVAC\x64\Bin\HVAC27\` 整目录拷贝。 |
-| 版本不匹配 / 加载后无反应 | zrx 与 ZWCAD 版本必须配套（当前 2027 / HVAC27），跨版本不通用。 |
+| `APPLOAD` 报缺 dll | 依赖 dll 未随包分发；从开发机 `Out\VC15\Alpha\x64\Bin\Arch27\` 整目录拷贝。 |
+| 版本不匹配 / 加载后无反应 | zrx 与 ZWCAD 版本必须配套（当前 2027），跨版本不通用。 |
 
 ### 注意事项
 
