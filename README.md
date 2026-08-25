@@ -1,122 +1,6 @@
-[README.md](https://github.com/user-attachments/files/31400424/README.md)
+[README.md](https://github.com/user-attachments/files/31418059/README.md)
 # ZwAmepMcpServer · 中望 AMEP MCP 服务
-
-> Bridge AI agents to ZWAMEP 1.4 (architecture & HVAC) — 110 drafting tools over stdio MCP.
-
-[![Platform](https://img.shields.io/badge/Windows-10%2F11%20x64-0078d4)](#系统要求)  [![MCP](https://img.shields.io/badge/MCP-stdio-blueviolet)](#架构) [![Tools](https://img.shields.io/badge/Tools-110-success)](#工具一览)
-
-[English](#english) · [中文](#中文)
-
----
-
-## English
-
-**ZwAmepMcpServer** is a single-file MCP server (PyInstaller distribution) that connects AI clients (Claude Desktop, Claude Code, Cursor, etc.) to **ZWAMEP 1.4** for architectural & mechanical-electrical-plumbing (AMEP) drafting.
-
-It exposes **110 tools** through the Model Context Protocol:
-
-| Prefix     | Count | Transport  | Description                                                      |
-| ---------- | ----: | ---------- | ---------------------------------------------------------------- |
-| `amep_*`   |    57 | Named pipe | Architecture & HVAC: walls, openings, columns, ducts, valves, fans, etc. |
-| `com_*`    |    53 | COM        | Generic drafting: draw, edit, dimension, blocks, text, layers, etc. |
-
-### How it works
-
-```
-┌──────────────┐   stdio (MCP)   ┌────────────────────┐  named pipe  ┌────────────────────┐
-│  AI client   │ ──────────────► │  ZwAmepMcpServer   │ ───────────► │  ZWAMEP 1.4  │
-│  (Claude…)   │ ◄────────────── │       (exe)        │ ◄─────────── │  + 2 ZRX plugins  │
-└──────────────┘   JSON-RPC      └────────────────────┘  amep_*       └────────────────────┘
-                                                                              +
-                                                                          com_* (COM)
-```
-
-The exe is only the **front-end**. The actual CAD capability lives in two companion ZRX plugins loaded inside the ZWCAD process:
-
-- `ZAecAMEPServerBridge.zrx` — exposes the `amep_*` tools over the named pipe `\\.\pipe\amep_server_bridge_pipe`.
-- `ZAecAMEPServerCom.zrx` — exposes the `com_*` tools via COM.
-
-### Requirements
-
-- Windows 10/11 x64
-- ZWAMEP 1.4、ZWAMEP 2.0.2 365
-- Any MCP client supporting stdio transport
-- Python is **not** required (already bundled in the exe)
-
-### Install
-
-1. **Unpack** the distribution to a fixed location, e.g. `C:\AMEP_MCP\`.
-2. **Load the ZRX plugins in ZWCAD**:
-   - Run `APPLOAD` → load `zrx\ZAecAMEPServerBridge.zrx`. The command line should print
-     `[ZAecAMEPServerBridge] 桥接插件已加载，命名管道就绪。MCP Server 可连接。`
-   - Load `zrx\ZAecAMEPServerCom.zrx` as well.
-   - *(Recommended)* Add both to the **Startup Suite** so they auto-load on ZWCAD launch.
-   - Verify: run `AMEPSERVERBRIDGE` → it should report the pipe as `运行中`.
-3. **Configure your MCP client** (`claude_desktop_config.json` or equivalent):
-
-   ```json
-   {
-     "mcpServers": {
-       "zwamep": {
-         "command": "C:\\AMEP_MCP\\ZwAmepMcpServer.exe",
-         "args": ["--mode", "named_pipe"]
-       }
-     }
-   }
-   ```
-
-   Claude Code equivalent:
-   ```bash
-   claude mcp add amep -- "C:\AMEP_MCP\ZwAmepMcpServer.exe" --mode named_pipe
-   ```
-
-### Verify
-
-1. Open a drawing in ZWCAD (e.g. `Drawing1.dwg`).
-2. From the AI client, call `amep_get_app_info` → expect ZWCAD version + current document.
-3. Call `com_get_cad_info` → expect `cad_name: ZWHVAC` and `com_version: ZAecAMEPServerCom 1.0`.
-4. Smoke test: `com_draw_radiator(x=0, y=0)` → a radiator should appear in ZWCAD.
-
-### Optional config — `config\amep_mcp_config.json`
-
-Read at startup; falls back to built-in defaults if missing.
-
-```json
-{
-  "bridge": {
-    "mode": "named_pipe",
-    "pipe_name": "amep_server_bridge_pipe",
-    "pipe_timeout_secs": 10
-  }
-}
-```
-
-- `mode`: `named_pipe` (normal use) or `mock` (no-CAD regression self-test, all tools return fake data).
-- `pipe_name`: must match what `ZAecAMEPServerBridge.zrx` was compiled with (default `amep_server_bridge_pipe`); usually do not change.
-
-### Troubleshooting
-
-| Symptom | Cause / fix |
-|---|---|
-| MCP client can't connect to exe | Wrong `command` path; or AV / SmartScreen blocking (exe is unsigned) — add to allowlist and retry. |
-| All `amep_*` tools time out / pipe error | ZWCAD didn't load `ZAecAMEPServerBridge.zrx`, or a version mismatch. Run `AMEPSERVERBRIDGE` in ZWCAD to confirm the pipe is running. |
-| `com_*` tools fail with "ProgID by ZAecAMEPServerCom.zrx" | ZWCAD didn't load `ZAecAMEPServerCom.zrx`. |
-| `com_*` works but `amep_*` reports `loadModule` failure | `ZAecArchService.zrx` / `ZAecHvacService.zrx` and their DLLs are not in the search path — copy the whole `zrx\` directory. |
-| Pipe call succeeds but no change in drawing | Make sure a drawing is open; some tools require a host entity first (e.g. openings need a wall). |
-| `APPLOAD` reports missing DLLs | Companion DLLs are not shipped — copy them from the dev machine's `Out\VC15\Alpha_HVAC\x64\Bin\HVAC27\`. |
-| Version mismatch / no response after load | zrx and ZWCAD versions must match (currently 2027 / HVAC27); cross-version is not supported. |
-
-### Notes
-
-- **Single ZWCAD instance**: COM is bound to the running ZWCAD process. When multiple are open, the one with the registered ProgID is connected — keep only one running.
-- **Recompiling zrx**: unload the old build in ZWCAD and load the new one (or restart ZWCAD). After the pipe disconnects, MCP tools auto-reconnect.
-- **Version coupling**: the wire protocol inside the exe matches the pipe protocol / method names compiled into the zrx — upgrade the whole package together, never one side.
-
----
-
-## 中文
-
-**ZwAmepMcpServer** 是一款单文件 MCP 服务（PyInstaller 打包），把 AI 客户端（Claude Desktop / Claude Code / Cursor 等）连接到 **ZWAMEP 1.4、ZWAMEP 2.0.2 365版本**，用于建筑、水暖电（AMEP）专业出图。
+**ZwAmepMcpServer** 是一款单文件 MCP 服务（PyInstaller 打包），把 AI 客户端（Claude Desktop / Claude Code / Cursor 等）连接到 **ZWAMEP**，用于建筑、水暖电（AMEP）专业出图。
 
 通过 Model Context Protocol 暴露 **110 个工具**：
 
@@ -129,7 +13,7 @@ Read at startup; falls back to built-in defaults if missing.
 
 ```
 ┌──────────────┐   stdio (MCP)   ┌────────────────────┐  命名管道    ┌────────────────────┐
-│  AI 客户端    │ ──────────────► │  ZwAmepMcpServer   │ ───────────► │  ZWAMEP 1.4   │
+│  AI 客户端    │ ──────────────► │  ZwAmepMcpServer   │ ───────────► │  ZWAMEP   │
 │  (Claude…)   │ ◄────────────── │     （exe）        │ ◄─────────── │  + 2 个 ZRX 插件   │
 └──────────────┘   JSON-RPC      └────────────────────┘  amep_*      └────────────────────┘
                                                                               +
@@ -144,18 +28,19 @@ exe 只是个**前端**。真正的画图能力在 ZWCAD 进程内的两个 ZRX 
 ### 系统要求
 
 - Windows 10/11 x64
-- ZWAMEP 1.4 永久版、ZWAMEP 2.0.2 365版本
-- 任意支持 stdio 传输的 MCP 客户端
-- **无需** Python（已打包进 exe）
+- ZWAMEP 1.4、ZWAMEP 2.0.2 365版本
+- 任意支持 stdio 传输的 MCP 客户端（WorkBuddy、Claude Code、Codex等）
 
 ### 安装
 
 1. **解压**到固定目录，例如 `C:\AMEP_MCP\`。
 2. **在 ZWCAD 中加载 ZRX 插件**：
+   - 将文件中插件里面的zrx全部拷贝至ZWAMEP安装目录下的（Arch26/Hvac26/Eap26/Wsd26）
    - 命令行执行 `APPLOAD` → 加载 `zrx\ZAecAMEPServerBridge.zrx`，命令行应出现
      `[ZAecAMEPServerBridge] 桥接插件已加载，命名管道就绪。MCP Server 可连接。`
    - 同时加载 `zrx\ZAecAMEPServerCom.zrx`。
-   - *（推荐）* 把两个 zrx 加入「启动套件（Startup Suite）」，下次启动 ZWCAD 自动加载。
+   - 同时加载 `zrx\ZAecArchService.zrx`或`zrx\ZAecHvacService.zrx` 
+   - *（推荐）* 把三个 zrx 加入「启动套件（Startup Suite）」，下次启动 ZWCAD 自动加载。
    - 验证：执行 `AMEPSERVERBRIDGE` → 应输出管道 `运行中`。
 3. **配置 MCP 客户端**（以 `claude_desktop_config.json` 为例）：
 
@@ -174,6 +59,7 @@ exe 只是个**前端**。真正的画图能力在 ZWCAD 进程内的两个 ZRX 
    ```bash
    claude mcp add amep -- "C:\AMEP_MCP\ZwAmepMcpServer.exe" --mode named_pipe
    ```
+   最直接的办法是，直接在MCP客户端上输入”帮我配置ZwAmepMcpServer.exe MCP服务“
 
 ### 验证
 
@@ -208,8 +94,8 @@ exe 启动时读取；缺省走内置默认。
 | `com_*` 工具报「该 ProgID 由 ZAecAMEPServerCom.zrx 加载」 | ZWCAD 未加载 `ZAecAMEPServerCom.zrx`。 |
 | `com_*` 可用但 `amep_*` 报 `loadModule` 失败 | `ZAecArchService.zrx` / `ZAecHvacService.zrx` 及其依赖 dll 不在搜索路径；整目录拷贝。 |
 | 管道工具调了但图纸无变化 | 确认 ZWCAD 有打开的图纸；部分工具需先有宿主实体（如门窗需先有墙）。 |
-| `APPLOAD` 报缺 dll | 依赖 dll 未随包分发；从开发机 `Out\VC15\Alpha\x64\Bin\Arch27\` 整目录拷贝。 |
-| 版本不匹配 / 加载后无反应 | zrx 与 ZWCAD 版本必须配套（当前 2027），跨版本不通用。 |
+| `APPLOAD` 报缺 dll | 依赖 dll 未随包分发；从开发机 `Out\VC15\Alpha_HVAC\x64\Bin\HVAC27\` 整目录拷贝。 |
+| 版本不匹配 / 加载后无反应 | zrx 与 ZWCAD 版本必须配套（当前 2027 / HVAC27），跨版本不通用。 |
 
 ### 注意事项
 
