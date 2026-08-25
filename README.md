@@ -24,7 +24,7 @@ It exposes **110 tools** through the Model Context Protocol:
 
 ```
 ┌──────────────┐   stdio (MCP)   ┌────────────────────┐  named pipe  ┌────────────────────┐
-│  AI client   │ ──────────────► │  ZwAmepMcpServer   │ ───────────► │  ZWCAD 2027 HVAC  │
+│  AI client   │ ──────────────► │  ZwAmepMcpServer   │ ───────────► │  ZWAMEP 2027  │
 │  (Claude…)   │ ◄────────────── │       (exe)        │ ◄─────────── │  + 2 ZRX plugins  │
 └──────────────┘   JSON-RPC      └────────────────────┘  amep_*       └────────────────────┘
                                                                               +
