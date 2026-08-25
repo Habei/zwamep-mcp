@@ -1,7 +1,7 @@
 [README.md](https://github.com/user-attachments/files/31400424/README.md)
 # ZwAmepMcpServer · 中望 AMEP MCP 服务
 
-> Bridge AI agents to ZWCAD 2027 AMEP (architecture & HVAC) — 110 drafting tools over stdio MCP.
+> Bridge AI agents to ZWAMEP 1.4 (architecture & HVAC) — 110 drafting tools over stdio MCP.
 
 [![Platform](https://img.shields.io/badge/Windows-10%2F11%20x64-0078d4)](#系统要求) [![CAD](https://img.shields.io/badge/ZWCAD-2027%20HVAC-orange)](#系统要求) [![MCP](https://img.shields.io/badge/MCP-stdio-blueviolet)](#架构) [![Tools](https://img.shields.io/badge/Tools-110-success)](#工具一览)
 
@@ -39,7 +39,7 @@ The exe is only the **front-end**. The actual CAD capability lives in two compan
 ### Requirements
 
 - Windows 10/11 x64
-- ZWAMEP2027、ZWAMEP2027 365
+- ZWAMEP 1.4、ZWAMEP 2.0.2 365
 - Any MCP client supporting stdio transport
 - Python is **not** required (already bundled in the exe)
 
@@ -129,7 +129,7 @@ Read at startup; falls back to built-in defaults if missing.
 
 ```
 ┌──────────────┐   stdio (MCP)   ┌────────────────────┐  命名管道    ┌────────────────────┐
-│  AI 客户端    │ ──────────────► │  ZwAmepMcpServer   │ ───────────► │  ZWCAD 2027 暖通   │
+│  AI 客户端    │ ──────────────► │  ZwAmepMcpServer   │ ───────────► │  ZWAMEP   │
 │  (Claude…)   │ ◄────────────── │     （exe）        │ ◄─────────── │  + 2 个 ZRX 插件   │
 └──────────────┘   JSON-RPC      └────────────────────┘  amep_*      └────────────────────┘
                                                                               +
@@ -144,7 +144,7 @@ exe 只是个**前端**。真正的画图能力在 ZWCAD 进程内的两个 ZRX 
 ### 系统要求
 
 - Windows 10/11 x64
-- ZWAMEP 2027 永久版、ZWAMEP 2027 365版本
+- ZWAMEP 1.4 永久版、ZWAMEP 2.0.2 365版本
 - 任意支持 stdio 传输的 MCP 客户端
 - **无需** Python（已打包进 exe）
 
